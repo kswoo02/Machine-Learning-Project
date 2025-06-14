@@ -1,0 +1,62 @@
+import pandas as pd
+from prophet import Prophet
+import matplotlib.pyplot as plt
+
+# -----------------------
+# 1. 데이터 불러오기
+# -----------------------
+# 데이터프레임은 반드시 ds, y 컬럼 필요
+# comment_day = 날짜, hits = 긍정률 (목표값)
+df = pd.read_csv('your_data.csv')  #파일명으로 수정
+df.rename(columns={'comment_day': 'ds', 'hits': 'y'}, inplace=True)
+
+# -----------------------
+# 2. logistic 설정 (필수)
+# -----------------------
+df['cap'] = 100     # 최대값 설정 (positive rate 최대 100%)
+df['floor'] = 0     # 최소값 설정
+
+# -----------------------
+# 3. Prophet 모델 생성
+# -----------------------
+model = Prophet(
+    growth='logistic',
+    daily_seasonality=True,     # 일간 계절성 사용
+    weekly_seasonality=True,    # 주간 계절성 사용
+    yearly_seasonality=False    # 연간 계절성 제외
+)
+
+# 이벤트(holidays)는 pass → 설정 안 함
+
+# -----------------------
+# 4. 모델 학습
+# -----------------------
+model.fit(df)
+
+# -----------------------
+# 5. 예측 데이터 생성
+# -----------------------
+# 향후 30일 예측
+future = model.make_future_dataframe(periods=30)
+
+# 반드시 cap, floor 넣어야 함 (logistic 필수 조건)
+future['cap'] = 100
+future['floor'] = 0
+
+# -----------------------
+# 6. 예측 실행
+# -----------------------
+forecast = model.predict(future)
+
+# -----------------------
+# 7. 결과 시각화
+# -----------------------
+fig1 = model.plot(forecast)
+plt.title("응기잇응깃: 후보 긍정률 예측 (30일)")
+plt.xlabel("날짜")
+plt.ylabel("긍정률 (%)")
+plt.show()
+
+# trend, seasonality 별도 시각화
+fig2 = model.plot_components(forecast)
+plt.show()

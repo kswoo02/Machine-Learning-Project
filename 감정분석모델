@@ -1,0 +1,49 @@
+# ✅ 1. 파일 업로드
+from google.colab import files
+uploaded = files.upload()  # 업로드할 CSV 선택
+
+# ✅ 2. 데이터프레임 불러오기
+import pandas as pd
+import numpy as np
+from datetime import datetime
+
+filename = list(uploaded.keys())[0]
+df = pd.read_csv(filename)
+
+# ✅ 3. 날짜 컬럼 생성 (없을 경우 임의 생성)
+if 'created_at' not in df.columns:
+    np.random.seed(42)
+    base_time = datetime(2024, 5, 20, 12, 0, 0)
+    df['created_at'] = [base_time + pd.Timedelta(hours=np.random.randint(0, 48)) for _ in range(len(df))]
+
+# ✅ 4. label_0, label_1, label_2 → 긍정, 중립, 부정으로 매핑
+label_map = {
+    'label_0': '긍정',
+    'label_1': '중립',
+    'label_2': '부정'
+}
+df['감정결과'] = df['predicted_label'].map(label_map)
+
+# ✅ 5. created_at → 1시간 단위 시계열 변환
+df['created_at'] = pd.to_datetime(df['created_at'])
+df['시간대'] = df['created_at'].dt.floor('H')
+
+# ✅ 6. 정리된 컬럼 구성 (컬럼명에 따라 수정)
+columns = ['created_at', '시간대']
+if '기사 제목' in df.columns:
+    columns.append('기사 제목')
+if '댓글' in df.columns:
+    columns.append('댓글')
+columns.append('감정결과')
+
+df_sorted = df[columns].sort_values(by='created_at')
+
+# ✅ 7. 결과 저장
+save_path = "감정분석_시계열결과.csv"
+df_sorted.to_csv(save_path, index=False, encoding='utf-8-sig')
+
+# ✅ 8. 파일 다운로드
+files.download(save_path)
+
+# ✅ 9. 미리보기 출력
+df_sorted.head()

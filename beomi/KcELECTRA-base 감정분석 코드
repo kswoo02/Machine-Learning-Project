@@ -1,0 +1,44 @@
+# ✅ 1. 설치: Hugging Face Transformers
+# 터미널에서 한 번만 실행: pip install transformers pandas
+
+# ✅ 2. 기본 모듈 import
+import pandas as pd
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
+import os
+
+# ✅ 3. CSV 파일 경로 지정
+filename = "your_comments_file.csv"  # 여기에 분석할 파일명을 넣으세요 (동일 폴더에 있어야 함)
+
+# ✅ 4. 업로드된 파일 읽기
+if not os.path.exists(filename):
+    raise FileNotFoundError(f"{filename} 파일을 현재 디렉토리에서 찾을 수 없습니다.")
+
+df = pd.read_csv(filename)
+
+# ✅ 5. 댓글 컬럼 전처리 (NaN 제거 + 문자열화)
+if "댓글" not in df.columns:
+    raise KeyError('"댓글"이라는 이름의 컬럼이 없습니다. CSV 파일을 확인하세요.')
+
+comments = df["댓글"].dropna().astype(str).tolist()
+
+# ✅ 6. 감정 분석 모델 불러오기
+model_name = "beomi/KcELECTRA-base"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSequenceClassification.from_pretrained(model_name)
+classifier = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
+
+# ✅ 7. 감정 분석 수행
+results = [classifier(text)[0] for text in comments]
+labels = ["긍정" if r["label"] == "LABEL_1" else "부정" for r in results]
+scores = [round(r["score"], 3) for r in results]
+
+# ✅ 8. 결과 저장
+df_result = df.loc[df["댓글"].notna()].copy()
+df_result["감정"] = labels
+df_result["신뢰도"] = scores
+
+# ✅ 9. 저장
+output_name = "댓글_감정분석결과.csv"
+df_result.to_csv(output_name, index=False, encoding="utf-8-sig")
+
+print(f"✅ 감정 분석 완료! 결과 파일 저장됨: {output_name}")
