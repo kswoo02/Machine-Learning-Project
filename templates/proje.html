@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proje Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/proje.css') }}">
+</head>
+<body>
+    <header>
+        <h1>2025 대선 여론 지지율 예측</h1>
+    </header>
+    <main class="content">
+        <div class="container">
+            <p class="name1">재명이</p>
+            <div class="box-container">
+              <a href="/num1_hour" class="box">지지율 한시간 단위</a>
+              <a href="/num1_day" class="box">지지율 하루 단위</a>
+            </div>
+        </div>
+        <div class="container">
+            <p class="name1">문수</p>
+            <div class="box-container">
+              <a href="/num2_hour" class="box">지지율 한시간 단위</a>
+              <a href="/num2_day" class="box">지지율 하루 단위</a>
+            </div>
+        </div>
+        <div class="container">
+            <p class="name1">준석이</p>
+            <div class="box-container">
+              <a href="/num4_hour" class="box">지지율 한시간 단위</a>
+              <a href="/num4_day" class="box">지지율 하루 단위</a>
+            </div>
+        </div>
+    </main>
+    
+    <footer class="bottom">
+        <p>&copy; 기계학습 프로젝트 </p>
+        <p>2021243074_김선우 2021243098_김재원</p>
+        <p>2019480113_김세민 2021243081_전효배</p>
+
+            
+        </p>
+    </footer>
+</body>
+</html>
