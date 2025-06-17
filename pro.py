@@ -1,4 +1,5 @@
 from flask import Flask, render_template
+# from livereload import Server
 
 app = Flask(__name__)
 
@@ -31,4 +32,5 @@ def num4_day():
     return render_template('num4_day.html')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5050, debug=True)
+    # server = Server(app.wsgi_app)
+    app.run(port=5050, host='0.0.0.0', debug=True)
